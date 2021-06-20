@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <script type="text/template" id="tmpl-elementor-navigator__elements">
 	<# if ( obj.elType ) { #>
-		<div class="elementor-navigator__item">
+		<div class="elementor-navigator__item" tabindex="-1">
 			<div class="elementor-navigator__element__list-toggle">
 				<i class="eicon-sort-down"></i>
 			</div>
