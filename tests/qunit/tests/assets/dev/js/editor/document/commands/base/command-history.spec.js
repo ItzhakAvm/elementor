@@ -1,5 +1,6 @@
 import CommandHistory from 'elementor-document/commands/base/command-history';
 import ElementsHelper from '../../elements/helper';
+import HistoryHelper from '../../history/helper';
 
 jQuery( () => {
 	QUnit.module( 'File: assets/dev/js/editor/document/commands/base/command-history.js', () => {
@@ -16,61 +17,44 @@ jQuery( () => {
 			} );
 
 			QUnit.test( 'isHistoryActive(): `useHistory` is `false`', async ( assert ) => {
-				await $e.run( 'document/elements/create', {
-					container: ElementsHelper.createSection(),
-					model: {
-						elType: 'widget',
-						widgetType: 'button',
-					},
+				ElementsHelper.createAutoButton( null, {
 					options: {
 						useHistory: false,
 					},
-					onBefore: () => {
-						const fakeHistory = class extends CommandHistory {
-								// eslint-disable-next-line no-unused-vars
-								getHistory( args ) {
-									return true;
-								}
-							},
-							instance = new fakeHistory( {} );
-
-						assert.false(
-							instance.isHistoryActive()
-						);
-					},
 				} );
-			} );
-		} );
 
-		QUnit.test( 'onCatchApply()`', ( assert ) => {
-			const fakeHistory = class extends CommandHistory {
-				// eslint-disable-next-line no-unused-vars
-				getHistory( args ) {
-					return true;
+				assert.ok( ! HistoryHelper.getFirstItem(), 'No history item should be created.' );
+			} );
+
+			QUnit.test( 'onCatchApply()`', ( assert ) => {
+				const fakeHistory = class extends CommandHistory {
+						// eslint-disable-next-line no-unused-vars
+						getHistory( args ) {
+							return true;
+						}
+					},
+					instance = new fakeHistory( {} );
+
+				instance.historyId = Math.random();
+
+				let tempCommand = '',
+					tempArgs = '';
+
+				$e.commandsInternal.on( 'run:before', ( component, command, args ) => {
+					tempCommand = command;
+					tempArgs = args;
+				} );
+
+				// Use `instance.historyId` for error.
+				try {
+					instance.onCatchApply( new $e.modules.HookBreak( instance.id ) );
+				} catch ( e ) {
+					assert.equal( e, instance.historyId );
 				}
-			},
-				instance = new fakeHistory( {} );
 
-			instance.historyId = Math.random();
-
-			let tempCommand = '',
-				tempArgs = '';
-
-			$e.commandsInternal.on( 'run:before', ( component, command, args ) => {
-				tempCommand = command;
-				tempArgs = args;
+				assert.equal( tempCommand, 'document/history/delete-log' );
+				assert.equal( tempArgs.id, instance.historyId );
 			} );
-
-			// Use `instance.historyId` for error.
-			try {
-				instance.onCatchApply( new $e.modules.HookBreak( instance.id ) );
-			} catch ( e ) {
-				assert.equal( e, instance.historyId );
-			}
-
-			assert.equal( tempCommand, 'document/history/delete-log' );
-			assert.equal( tempArgs.id, instance.historyId );
 		} );
 	} );
 } );
-

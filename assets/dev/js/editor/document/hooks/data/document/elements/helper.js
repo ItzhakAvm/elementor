@@ -16,6 +16,11 @@ export default class Helper {
 				 */
 				container.view.addChildModel( model );
 
+				// Since the method manually handling the history.
+				if ( ! $e.commands.getCurrentFirstTraceArgs()?.options?.useHistory ) {
+					return;
+				}
+
 				/**
 				 * Manual history & not using of `$e.run('document/elements/create')`
 				 * For performance reasons.

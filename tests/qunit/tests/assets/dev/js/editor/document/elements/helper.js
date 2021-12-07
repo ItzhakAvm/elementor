@@ -64,7 +64,7 @@ export default class ElementsHelper {
 		} );
 	}
 
-	static createButton( eContainer, settings = {} ) {
+	static createButton( eContainer, settings = {}, args = {} ) {
 		return $e.run( 'document/elements/create', {
 			container: eContainer,
 			model: {
@@ -72,6 +72,7 @@ export default class ElementsHelper {
 				widgetType: 'button',
 				settings,
 			},
+			... args,
 		} );
 	}
 
@@ -299,12 +300,12 @@ export default class ElementsHelper {
 	/**
 	 * @return {Container}
 	 */
-	static createAutoButton( eContainer = null ) {
+	static createAutoButton( eContainer = null, args = {} ) {
 		if ( ! eContainer ) {
-			eContainer = this.createSection( 1, true );
+			eContainer = this.createSection( 1, true, args.options );
 		}
 
-		return this.createButton( eContainer );
+		return this.createButton( eContainer, {}, args, args.options );
 	}
 
 	static multiCreateAutoButton( eContainers = null ) {
